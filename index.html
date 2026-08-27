@@ -3,149 +3,884 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CI/CD Pipeline Demo</title>
+  <title>CloudFlow - Modern CI/CD Platform</title>
   
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   
   <!-- AOS Animation CSS -->
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
   <style>
-    /* Internal CSS */
     :root {
-      --primary-color: #0d6efd;
-      --dark-bg: #121212;
+      --primary: #0d6efd;
+      --primary-dark: #0a4baf;
+      --secondary: #6f42c1;
+      --success: #198754;
+      --dark-bg: #0f0f1e;
+      --light-bg: #f8fafc;
+      --border-color: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #ffffff;
+      color: #333;
       scroll-behavior: smooth;
+      line-height: 1.6;
     }
 
-    .hero-section {
-      background: linear-gradient(135deg, #0d6efd 0%, #0a4baf 100%);
+    /* Navbar */
+    .navbar-custom {
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a2e 100%);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar-brand {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #0d6efd, #6f42c1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-link {
+      color: #e0e0e0 !important;
+      margin-left: 20px;
+      transition: color 0.3s ease;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -5px;
+      left: 0;
+      background: linear-gradient(135deg, #0d6efd, #6f42c1);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: #ffffff !important;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 50%, var(--primary-dark) 100%);
       color: white;
-      padding: 100px 0;
+      padding: 120px 0;
+      position: relative;
+      overflow: hidden;
     }
 
-    .card-custom {
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(13, 110, 253, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      top: -200px;
+      right: -200px;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(111, 66, 193, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      bottom: -150px;
+      left: -150px;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-size: 56px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+
+    .hero .lead {
+      font-size: 20px;
+      color: #c0c0c0;
+      margin-bottom: 40px;
+      max-width: 600px;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
       border: none;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      transition: transform 0.3s ease;
+      color: white;
+      padding: 12px 32px;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 10px 30px rgba(13, 110, 253, 0.3);
     }
 
-    .card-custom:hover {
-      transform: translateY(-5px);
+    .btn-gradient:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(13, 110, 253, 0.4);
+      color: white;
+    }
+
+    .btn-outline-light-custom {
+      border: 2px solid white;
+      color: white;
+      background: transparent;
+      padding: 10px 28px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-light-custom:hover {
+      background: white;
+      color: var(--primary);
+      transform: translateY(-3px);
+    }
+
+    /* Sections */
+    section {
+      padding: 80px 0;
+    }
+
+    .section-title {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .section-subtitle {
+      font-size: 18px;
+      color: #666;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 60px;
+    }
+
+    /* Feature Cards */
+    .feature-card {
+      background: white;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 40px 30px;
+      text-align: center;
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+
+    .feature-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(13, 110, 253, 0.15);
+    }
+
+    .feature-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+      background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(111, 66, 193, 0.1));
+      color: var(--primary);
+    }
+
+    .feature-card h4 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: #222;
+    }
+
+    .feature-card p {
+      color: #666;
+      font-size: 15px;
+    }
+
+    /* Pipeline Steps */
+    .pipeline-section {
+      background: linear-gradient(135deg, var(--light-bg) 0%, #f0f4f8 100%);
+    }
+
+    .step-card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      position: relative;
+      border-left: 4px solid var(--primary);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .step-number {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 24px;
+    }
+
+    .step-card h4 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    .step-card p {
+      color: #666;
+      margin: 0;
+    }
+
+    /* Stats Section */
+    .stats-section {
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%);
+      color: white;
+      padding: 60px 0;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 30px;
+    }
+
+    .stat-number {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .stat-label {
+      font-size: 16px;
+      color: #b0b0b0;
+      font-weight: 500;
+    }
+
+    /* Status Cards */
+    .status-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .status-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      border-left: 4px solid var(--success);
     }
 
     .status-badge {
-      display: inline-block;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-weight: 600;
-      background-color: #e8f5e9;
-      color: #2e7d32;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(25, 135, 84, 0.1);
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .status-card.warning {
+      border-left-color: #ffc107;
+    }
+
+    .status-card.warning .status-badge {
+      background: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+    }
+
+    /* Pricing Section */
+    .pricing-section {
+      background: var(--light-bg);
+    }
+
+    .pricing-card {
+      background: white;
+      border-radius: 12px;
+      padding: 40px 30px;
+      text-align: center;
+      border: 2px solid var(--border-color);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--primary);
+      transform: scale(1.05);
+      box-shadow: 0 20px 50px rgba(13, 110, 253, 0.2);
+    }
+
+    .pricing-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .price {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 20px 0;
+    }
+
+    .price span {
+      font-size: 18px;
+      color: #666;
+    }
+
+    .features-list {
+      list-style: none;
+      margin: 30px 0;
+      text-align: left;
+    }
+
+    .features-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+      color: #666;
+    }
+
+    .features-list li:before {
+      content: "✓";
+      color: var(--success);
+      font-weight: 700;
+      margin-right: 10px;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .cta-section h2 {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .cta-section p {
+      font-size: 18px;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark-bg);
+      color: #b0b0b0;
+      padding: 60px 0 20px;
+    }
+
+    .footer-section h5 {
+      color: white;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .footer-section ul {
+      list-style: none;
+    }
+
+    .footer-section ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-section a {
+      color: #b0b0b0;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-section a:hover {
+      color: var(--primary);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #333;
+      margin-top: 40px;
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 36px;
+      }
+
+      .hero .lead {
+        font-size: 16px;
+      }
+
+      .section-title {
+        font-size: 36px;
+      }
+
+      .pricing-card.featured {
+        transform: scale(1);
+      }
+
+      .stat-number {
+        font-size: 36px;
+      }
     }
   </style>
 </head>
 <body>
 
   <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
     <div class="container">
-      <a class="navbar-link navbar-brand fw-bold" href="#">CI/CD WebApp</a>
+      <a class="navbar-brand" href="#">CloudFlow</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
-          <li class="nav-item"><a class="nav-link" href="#pipeline">Status</a></li>
+          <li class="nav-item"><a class="nav-link" href="#pipeline">Pipeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
         </ul>
       </div>
     </div>
   </nav>
 
   <!-- Hero Section -->
-  <header class="hero-section text-center">
-    <div class="container" data-aos="fade-up">
-      <h1 class="display-4 fw-bold">Automated Deployment Ready</h1>
-      <p class="lead mt-3">This static website is set up to test build, test, and deployment workflows.</p>
-      <button id="actionBtn" class="btn btn-light btn-lg mt-3 fw-semibold">Test Interactive JS</button>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content" data-aos="fade-up">
+        <h1>Automated Deployment Made Simple</h1>
+        <p class="lead">CloudFlow streamlines your CI/CD pipeline with powerful automation, real-time monitoring, and seamless integrations.</p>
+        <div class="mt-4">
+          <button class="btn btn-gradient me-3" data-bs-toggle="modal" data-bs-target="#demoModal">Watch Demo</button>
+          <a href="#features" class="btn btn-outline-light-custom">Learn More</a>
+        </div>
+      </div>
     </div>
-  </header>
+  </section>
 
   <!-- Features Section -->
-  <section id="features" class="py-5">
-    <div class="container">
-      <h2 class="text-center mb-5 fw-bold" data-aos="fade-up">Pipeline Components</h2>
-      
-      <div class="row g-4">
-        <!-- Card 1 -->
-        <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-          <div class="card card-custom p-4 h-100">
-            <h4 class="fw-bold">1. Source Control</h4>
-            <p class="text-muted">Code changes trigger your pipeline automatically upon every push to the main branch.</p>
+  <section id="features" class="container">
+    <div data-aos="fade-up">
+      <h2 class="section-title">Powerful Features</h2>
+      <p class="section-subtitle">Everything you need to automate your deployment workflow</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-code-branch"></i>
           </div>
+          <h4>Source Control Integration</h4>
+          <p>Seamlessly integrate with GitHub, GitLab, and Bitbucket. Auto-trigger pipelines on every commit.</p>
         </div>
-        
-        <!-- Card 2 -->
-        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-          <div class="card card-custom p-4 h-100">
-            <h4 class="fw-bold">2. Build & Test</h4>
-            <p class="text-muted">Automated linting and validation ensure basic syntax and HTML integrity before release.</p>
+      </div>
+
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-flask"></i>
+          </div>
+          <h4>Automated Testing</h4>
+          <p>Run unit tests, integration tests, and security scans automatically before deployment.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <h4>One-Click Deployment</h4>
+          <p>Deploy to staging or production with a single click. Rollback instantly if needed.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h4>Real-Time Monitoring</h4>
+          <p>Monitor build progress, test results, and deployment status in real-time dashboards.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h4>Security & Compliance</h4>
+          <p>Built-in security scanning, vulnerability detection, and compliance reporting.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-puzzle-piece"></i>
+          </div>
+          <h4>Easy Integration</h4>
+          <p>Connect with Slack, Jira, Docker, Kubernetes, and 100+ other tools.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pipeline Section -->
+  <section id="pipeline" class="pipeline-section">
+    <div class="container">
+      <div data-aos="fade-up">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">A simple 4-step deployment pipeline</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <h4>Push Code</h4>
+            <p>Push your code to the repository. The pipeline automatically triggers.</p>
           </div>
         </div>
 
-        <!-- Card 3 -->
-        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-          <div class="card card-custom p-4 h-100">
-            <h4 class="fw-bold">3. Deployment</h4>
-            <p class="text-muted">Artifacts are pushed directly to host servers like GitHub Pages, Vercel, or Netlify.</p>
+        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <h4>Build & Test</h4>
+            <p>Automated tests run. Security checks validate your code quality.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <h4>Deploy Staging</h4>
+            <p>Deploy to staging environment for final verification and testing.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+          <div class="step-card">
+            <div class="step-number">4</div>
+            <h4>Live Production</h4>
+            <p>Approve and deploy to production. Instant rollback available.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Status -->
+      <div class="mt-5 text-center" data-aos="zoom-in">
+        <h3 class="fw-bold mb-4">Current System Status</h3>
+        <div class="status-container">
+          <div class="status-card">
+            <div class="status-badge"><i class="fas fa-check"></i></div>
+            <div>
+              <strong>Builds</strong>
+              <p class="mb-0 text-muted">All systems operational</p>
+            </div>
+          </div>
+          <div class="status-card">
+            <div class="status-badge"><i class="fas fa-check"></i></div>
+            <div>
+              <strong>Deployments</strong>
+              <p class="mb-0 text-muted">99.9% uptime guaranteed</p>
+            </div>
+          </div>
+          <div class="status-card">
+            <div class="status-badge"><i class="fas fa-check"></i></div>
+            <div>
+              <strong>Infrastructure</strong>
+              <p class="mb-0 text-muted">Global distributed network</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Status Section -->
-  <section id="pipeline" class="bg-light py-5">
-    <div class="container text-center" data-aos="zoom-in">
-      <h3 class="fw-bold">Current Deployment Status</h3>
-      <div class="mt-3">
-        <span class="status-badge" id="liveStatus">Build Status: Passing</span>
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+          <div class="stat-item">
+            <div class="stat-number">50K+</div>
+            <div class="stat-label">Active Users</div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+          <div class="stat-item">
+            <div class="stat-number">2M+</div>
+            <div class="stat-label">Deployments Monthly</div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+          <div class="stat-item">
+            <div class="stat-number">99.99%</div>
+            <div class="stat-label">Uptime SLA</div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+          <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Expert Support</div>
+          </div>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="pricing-section">
+    <div class="container">
+      <div data-aos="fade-up">
+        <h2 class="section-title">Simple Pricing</h2>
+        <p class="section-subtitle">Choose the perfect plan for your team</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="pricing-card">
+            <h4>Starter</h4>
+            <div class="price">$29<span>/month</span></div>
+            <p class="text-muted">Perfect for individuals and small projects</p>
+            <ul class="features-list">
+              <li>Up to 10 builds per day</li>
+              <li>1 concurrent build</li>
+              <li>Basic integrations</li>
+              <li>Community support</li>
+              <li>99.9% uptime SLA</li>
+            </ul>
+            <button class="btn btn-outline-primary w-100">Get Started</button>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+          <div class="pricing-card featured">
+            <span class="badge bg-gradient-primary position-absolute top-0 start-50 translate-middle-x">POPULAR</span>
+            <h4>Professional</h4>
+            <div class="price">$79<span>/month</span></div>
+            <p class="text-muted">Great for growing teams and products</p>
+            <ul class="features-list">
+              <li>Unlimited builds</li>
+              <li>5 concurrent builds</li>
+              <li>Premium integrations</li>
+              <li>Priority support</li>
+              <li>99.99% uptime SLA</li>
+            </ul>
+            <button class="btn btn-gradient w-100">Get Started</button>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+          <div class="pricing-card">
+            <h4>Enterprise</h4>
+            <div class="price">Custom</div>
+            <p class="text-muted">For large organizations with specific needs</p>
+            <ul class="features-list">
+              <li>Unlimited everything</li>
+              <li>Unlimited concurrent builds</li>
+              <li>Custom integrations</li>
+              <li>Dedicated support</li>
+              <li>99.999% uptime SLA</li>
+            </ul>
+            <button class="btn btn-outline-primary w-100">Contact Sales</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section" id="contact">
+    <div class="container" data-aos="zoom-in">
+      <h2>Ready to Streamline Your Deployment?</h2>
+      <p>Join thousands of teams that trust CloudFlow for their CI/CD needs.</p>
+      <button class="btn btn-gradient btn-lg" data-bs-toggle="modal" data-bs-target="#contactModal">Start Free Trial</button>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="bg-dark text-white text-center py-4">
-    <p class="mb-0 small">&copy; 2026 CI/CD Learning Environment</p>
+  <footer>
+    <div class="container">
+      <div class="row mb-5">
+        <div class="col-md-3 footer-section">
+          <h5><i class="fas fa-cloud-upload-alt"></i> CloudFlow</h5>
+          <p>Modern CI/CD platform for teams of all sizes.</p>
+        </div>
+        <div class="col-md-3 footer-section">
+          <h5>Product</h5>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pipeline">Pipeline</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#">Integrations</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 footer-section">
+          <h5>Company</h5>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Status</a></li>
+            <li><a href="#">Careers</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 footer-section">
+          <h5>Legal</h5>
+          <ul>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Security</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 CloudFlow. All rights reserved. Built with <i class="fas fa-heart text-danger"></i> for developers.</p>
+      </div>
+    </div>
   </footer>
 
-  <!-- Bootstrap JS Bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/bootstrap.bundle.min.js"></script>
+  <!-- Demo Modal -->
+  <div class="modal fade" id="demoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">CloudFlow Demo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
+            <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Modal -->
+  <div class="modal fade" id="contactModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Start Your Free Trial</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="contactForm">
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" placeholder="John Doe" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-control" placeholder="john@example.com" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Company</label>
+              <input type="text" class="form-control" placeholder="Your Company">
+            </div>
+            <button type="submit" class="btn btn-gradient w-100">Get Started</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   
-  <!-- AOS Animation Script -->
+  <!-- AOS Animation -->
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-  <!-- Internal JavaScript -->
   <script>
-    // Initialize Scroll Animations
+    // Initialize AOS
     AOS.init({
       duration: 800,
-      once: true
+      once: true,
+      offset: 100
     });
 
-    // Simple interaction test script
-    document.getElementById('actionBtn').addEventListener('click', function() {
-      const statusBadge = document.getElementById('liveStatus');
-      statusBadge.textContent = 'Interactive JS Execution Verified';
-      statusBadge.style.backgroundColor = '#e3f2fd';
-      statusBadge.style.color = '#0d6efd';
-      alert('JavaScript triggered successfully!');
+    // Form submission handler
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btn = this.querySelector('button[type="submit"]');
+      const originalText = btn.textContent;
+      btn.textContent = '✓ Submitted Successfully';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.disabled = false;
+        this.reset();
+        bootstrap.Modal.getInstance(document.getElementById('contactModal')).hide();
+      }, 2000);
+    });
+
+    // Smooth scroll for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
     });
   </script>
 </body>
