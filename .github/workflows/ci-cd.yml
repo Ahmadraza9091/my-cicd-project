@@ -9,13 +9,14 @@ on:
       - main
 
 jobs:
+
   build-and-push:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Log in to Docker Hub (only on push to main)
       - name: Log in to Docker Hub
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
@@ -23,7 +24,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 2. Build and push Docker image
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -33,18 +33,39 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site:${{ github.sha }}
 
+
   deploy-ec2:
     needs: build-and-push
     runs-on: ubuntu-latest
+
+    # Only deploy after push to main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
     steps:
+      - name: Check SSH key
+        env:
+          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          echo "SSH key length: ${#SSH_KEY}"
+          echo "First line:"
+          printf '%s\n' "$SSH_KEY" | head -n 1
+          echo "Last line:"
+          printf '%s\n' "$SSH_KEY" | tail -n 1
+
       - name: Deploy to AWS EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_PUBLIC_IP }}
-          username: ec2-user # ya 'ubuntu'
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
           script: |
             docker stop my-app || true
             docker rm my-app || true
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site
-            docker run -d -p 80:80 --name my-app ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site
+
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site:latest
+
+            docker run -d \
+              -p 80:80 \
+              --name my-app \
+              ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site:latest
