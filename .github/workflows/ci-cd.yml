@@ -32,3 +32,19 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site:${{ github.sha }}
+
+  deploy-ec2:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to AWS EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_PUBLIC_IP }}
+          username: ec2-user # ya 'ubuntu'
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker stop my-app || true
+            docker rm my-app || true
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site
+            docker run -d -p 80:80 --name my-app ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site
