@@ -38,68 +38,33 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
 
-    # Only deploy after push to main
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
-      - name: Check SSH key
+
+      - name: Validate SSH key
         env:
           SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
-          echo "SSH key length: ${#SSH_KEY}"
-          echo "First line:"
-          printf '%s\n' "$SSH_KEY" | head -n 1
-          echo "Last line:"
-          printf '%s\n' "$SSH_KEY" | tail -n 1
-      deploy-ec2:
-  needs: build-and-push
-  runs-on: ubuntu-latest
+          printf '%s\n' "$SSH_KEY" > /tmp/ec2-key.pem
 
-  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+          echo "Key file created"
+          wc -c /tmp/ec2-key.pem
 
-  steps:
+          echo "Key header:"
+          head -n 1 /tmp/ec2-key.pem
 
-    - name: Validate SSH key
-      env:
-        SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-      run: |
-        printf '%s\n' "$SSH_KEY" > /tmp/ec2-key.pem
+          echo "Key footer:"
+          tail -n 1 /tmp/ec2-key.pem
 
-        echo "Key file created"
-        wc -c /tmp/ec2-key.pem
+          echo "Testing PEM..."
+          ssh-keygen -y -f /tmp/ec2-key.pem > /tmp/public-key.pub
 
-        echo "Key header:"
-        head -n 1 /tmp/ec2-key.pem
+          echo "SSH key is VALID"
 
-        echo "Key footer:"
-        tail -n 1 /tmp/ec2-key.pem
-
-        echo "Testing PEM..."
-        ssh-keygen -y -f /tmp/ec2-key.pem > /tmp/public-key.pub
-
-        echo "SSH key is VALID"
-
-    - name: Deploy to AWS EC2 via SSH
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2_PUBLIC_IP }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        port: 22
-        script: |
-          docker stop my-app || true
-          docker rm my-app || true
-
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site:latest
-
-          docker run -d \
-            -p 80:80 \
-            --name my-app \
-            ${{ secrets.DOCKERHUB_USERNAME }}/my-static-site:latest
-
-    - name: Deploy to AWS EC2 via SSH
-      uses: appleboy/ssh-action@v1.0.3
-      with:
+      - name: Deploy to AWS EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
           host: ${{ secrets.EC2_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
