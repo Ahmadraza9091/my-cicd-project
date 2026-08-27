@@ -47,7 +47,7 @@ jobs:
           SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
           printf '%s\n' "$SSH_KEY" > /tmp/ec2-key.pem
-
+          chmod 600 /tmp/ec2-key.pem
           echo "Key file created"
           wc -c /tmp/ec2-key.pem
 
